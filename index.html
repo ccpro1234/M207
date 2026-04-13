@@ -383,6 +383,11 @@ const R=6,C=13;
 let h=[],g=[];
 let topResults = [];   // 👈 ใส่ตรงนี้ (สำคัญมาก)
 
+// ✅ เพิ่มตรงนี้
+function getCleanHistory(){
+  return h.filter(x => x !== '0');
+}
+
 let lossCount = 0;
 let antiMode = true;
 
@@ -419,16 +424,18 @@ function add(v){
   let lastIndex = h.length - 1;
 
   // ===== ✅ เก็บ TOP RESULT =====
-  if(g[lastIndex] !== undefined && v !== '0'){
+  let clean = getCleanHistory();
 
-     let isWin = (v === g[lastIndex]);
+if(v !== '0' && g[clean.length - 1] !== undefined){
+   let isWin = (v === g[clean.length - 1]);
 
-     topResults.push({ win: isWin });
+   topResults.push({ win: isWin });
 
-     if(topResults.length > 50){
-        topResults.shift();
-     }
-  }
+   if(topResults.length > 50){
+      topResults.shift();
+   }
+}
+
 
   // ===== อัปเดต lose streak =====
   if(g[lastIndex] !== undefined && v !== '0'){
@@ -499,22 +506,24 @@ function undo(){
 }
 
 function getLossStreak(){
-   let streak = 0;
+   let clean = getCleanHistory();
 
-   for(let i = h.length - 1; i >= 0; i--){
-      if(h[i] === '0') continue;
-      if(g[i] === undefined) break;
+let streak = 0;
 
-      if(h[i] !== g[i]) streak++;
-      else break;
-   }
+for(let i = clean.length - 1; i >= 0; i--){
+  if(g[i] === undefined) break;
+
+  if(clean[i] !== g[i]) streak++;
+  else break;
+}
 
    return streak;
 }
 
 function getReverseSignal(){
 
-   let recent = h.slice().reverse().find(x => x !== '0');
+   let clean = getCleanHistory();
+   let recent = clean.slice().reverse()[0];
 
    if(!recent) return null;
 
@@ -556,8 +565,10 @@ let dynamicPrefix = 5;
 if(riskLevel <= 0.6) dynamicPrefix = 4;
 if(riskLevel <= 0.4) dynamicPrefix = 3;
 
-let start = Math.max(0, h.length - dynamicPrefix);
-let prefix = h.slice(start).filter(x => x !== '0');
+let clean = getCleanHistory();
+
+let start = Math.max(0, clean.length - dynamicPrefix);
+let prefix = clean.slice(start);
 
 // ===== Monte Carlo Loop =====
 for(let t=0; t<TOTAL; t+=CHUNK){
@@ -668,7 +679,8 @@ lastMode = final === mainSignal ? 'main' : 'reverse';
 
   function getSmart50Decision(){
 
-  let recent = h.slice().reverse().filter(x => x !== '0').slice(0, 10);
+  let clean = getCleanHistory();
+   let recent = clean.slice().reverse().slice(0, 10);
 
   let scoreP = 0;
   let scoreB = 0;
