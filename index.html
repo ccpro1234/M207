@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Quantum Predictor</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+<style>
+:root{
+--p:#38bdf8;
+--b:#fb7185;
+--t:#4ade80;
+--panel:#0f172a;
+}
+
+body{
+margin:0;
+background:radial-gradient(circle at top,#020617,#000);
+font-family:'Sarabun',sans-serif;
+color:#e5e7eb;
+user-select:none;
+}
+
+/* ===== BLINK ===== */
+@keyframes glowBlink{
+0%{box-shadow:0 0 0 rgba(250,204,21,0);transform:scale(1)}
+50%{box-shadow:0 0 26px rgba(250,204,21,.95);transform:scale(1.2)}
+100%{box-shadow:0 0 0 rgba(250,204,21,0);transform:scale(1)}
+}
+
+/* ===== LOGIN ===== */
+.login{
+max-width:380px;
+margin:120px auto;
+padding:30px;
+border-radius:24px;
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(18px);
+box-shadow:0 0 80px rgba(56,189,248,.25);
+}
+.login h3{
+font-family:'Orbitron',sans-serif;
+font-weight:800;
+text-align:center;
+letter-spacing:2px;
+margin-bottom:20px;
+}
+.login input{
+width:100%;
+padding:12px;
+border-radius:14px;
+border:none;
+background:#020617;
+color:#fff;
+margin-bottom:12px;
+}
+.login button{
+width:100%;
+padding:12px;
+border-radius:16px;
+border:none;
+font-weight:900;
+background:linear-gradient(135deg,#38bdf8,#6366f1);
+color:#000;
+}
+
+/* ===== MAIN ===== */
+.app{
+max-width:540px;
+margin:20px auto;
+padding:24px;
+border-radius:30px;
+background:#020617;
+box-shadow:0 0 120px rgba(99,102,241,.25);
+}
+
+.header{
+text-align:center;
+font-family:'Orbitron',sans-serif;
+font-weight:900;
+letter-spacing:2px;
+}
+.sub{
+text-align:center;
+font-size:.85rem;
+color:#94a3b8;
+margin-bottom:10px;
+}
+
+.expired{
+color:#ef4444;
+font-weight:900;
+text-align:center;
+margin-bottom:10px;
+}
+
+.acc{
+text-align:center;
+font-size:1.4rem;
+font-weight:900;
+margin-bottom:8px;
+}
+.acc span{color:#38bdf8}
+
+/* ===== BIG BET ===== */
+.advice{
+margin:12px auto 16px;
+height:74px;
+border-radius:26px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-family:'Orbitron',sans-serif;
+font-size:42px;
+font-weight:900;
+letter-spacing:6px;
+border:2px solid #334155;
+}
+.advice.p{color:var(--p);border-color:var(--p)}
+.advice.b{color:var(--b);border-color:var(--b)}
+
+/* ===== STATS ===== */
+.stats{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:6px;
+margin-bottom:12px;
+}
+.stats div{
+background:var(--panel);
+border-radius:14px;
+padding:8px;
+text-align:center;
+font-weight:800;
+}
+
+/* ===== TABLE ===== */
+table{border-collapse:separate;border-spacing:6px;margin:auto}
+td{
+width:38px;height:38px;border-radius:12px;
+background:#020617;text-align:center;
+font-weight:900;font-size:16px;
+position:relative;
+box-shadow:inset 0 0 12px rgba(255,255,255,.08);
+}
+td span{position:relative;z-index:2}
+
+/* REAL */
+.p{color:var(--p);border:1px solid var(--p)}
+.b{color:var(--b);border:1px solid var(--b)}
+.t{color:var(--t);border:1px solid var(--t)}
+
+/* GHOST */
+.gp{color:var(--p);background:rgba(56,189,248,.18);border:1px dashed var(--p)}
+.gb{color:var(--b);background:rgba(251,113,133,.18);border:1px dashed var(--b)}
+
+/* BLINK SMALL BET */
+.pending{
+border:2px solid #facc15!important;
+animation:glowBlink 1s infinite;
+}
+
+/* MARK */
+.mark{
+position:absolute;inset:0;
+display:flex;align-items:center;justify-content:center;
+font-size:22px;opacity:.35;pointer-events:none;
+}
+.ok{color:#22c55e}
+.no{color:#ef4444}
+
+.btn{border-radius:18px;font-weight:900}
+
+/* ตัวแทงใหญ่ */
+.top-bet{
+  text-align:center;
+  font-size:40px;
+  font-weight:900;
+  margin-bottom:10px;
+  border-radius:16px;
+  padding:6px;
+  border:2px solid #334155;
+}
+
+.top-bet.p{ color:#38bdf8; border-color:#38bdf8; }
+.top-bet.b{ color:#fb7185; border-color:#fb7185; }
+
+/* grid */
+.top-grid{
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  gap:6px;
+}
+
+/* ช่องผล */
+.top-cell{
+  border-radius:10px;
+  padding:2px;
+  text-align:center;
+  font-size:10px;
+  font-weight:900;
+}
+
+/* ถูก */
+.top-win{
+  background:#022c22;
+  color:#22c55e;
+  border:1px solid #22c55e;
+}
+
+/* ผิด */
+.top-lose{
+  background:#2a0a0a;
+  color:#ef4444;
+  border:1px solid #ef4444;
+}
+
+/* 🔥 RESULT % BLINK (แรง + 1.5x) */
+@keyframes resultBlink{
+  0%{
+    transform: scale(1);
+    text-shadow: 0 0 0 rgba(255,255,255,0);
+  }
+  50%{
+    transform: scale(1.19);   /* 💥 เด้งจริง */
+    text-shadow: 0 0 35px currentColor;
+  }
+  100%{
+    transform: scale(1);
+    text-shadow: 0 0 0 rgba(255,255,255,0);
+  }
+}
+.blink-acc{
+  display:inline-block;   /* 🔥 ตัวนี้สำคัญสุด */
+  animation: resultBlink 0.9s infinite;
+  font-weight:900;
+  transform-origin:center;
+}
+
+/* 🔴 ต่ำ */
+.acc-low{ color:#ef4444; }
+
+/* 🟡 กลาง */
+.acc-mid{ color:#facc15; }
+
+/* 🟢 สูง */
+.acc-high{ color:#22c55e; }
+
+
+/* 🔥 AI HELPER BOX */
+.ai-helper{
+  margin-top:10px;
+  padding:12px;
+  border-radius:16px;
+  text-align:center;
+  font-weight:900;
+  font-size:16px;
+  letter-spacing:1px;
+  border:2px solid #334155;
+  transition:0.3s;
+}
+
+/* 🔴 สวน */
+.ai-reverse{
+  color:#ef4444;
+  border-color:#ef4444;
+  background:#2a0a0a;
+  box-shadow:0 0 20px rgba(239,68,68,.4);
+}
+
+/* 🟡 กลาง */
+.ai-neutral{
+  color:#facc15;
+  border-color:#facc15;
+  background:#2a2405;
+  box-shadow:0 0 20px rgba(250,204,21,.4);
+}
+
+/* 🟢 ตาม */
+.ai-follow{
+  color:#22c55e;
+  border-color:#22c55e;
+  background:#022c22;
+  box-shadow:0 0 20px rgba(34,197,94,.4);
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div id="login" class="login">
+<h3>AI ACCESS</h3>
+<input id="u" placeholder="USER">
+<input id="p" type="password" placeholder="PASSWORD">
+<button onclick="go()">LOGIN</button>
+<div id="m" class="text-danger text-center mt-2"></div>
+</div>
+
+<div id="app" class="app d-none">
+<div class="header">AI QUANTUM PREDICTOR Monte Carlo Pattern Filter เงื่อนไขรัดกุม เน้นปลอดภัย หมุน 97,000 รอบ ผจก.Aggrassive ช่วยเลือกตัวแทง</div>
+<div class="sub">Expiry : 16 เมษายน พ.ศ. 2569</div>
+<div id="expiredMsg" class="expired d-none">❌ โปรแกรมหมดอายุแล้ว</div>
+
+<div class="acc">ACCURACY <span id="acc">0%</span></div>
+
+<div id="adv" class="advice">WAIT</div>
+
+<div class="stats">
+<div style="color:var(--p)">P <span id="cp">0</span></div>
+<div style="color:var(--b)">B <span id="cb">0</span></div>
+<div style="color:var(--t)">T <span id="ct">0</span></div>
+<div>TOTAL <span id="ca">0</span></div>
+</div>
+
+<table><tbody id="tb"></tbody></table>
+<div class="row g-2 mt-3">
+
+  <!-- แถวบน -->
+  <div class="col-4">
+    <button class="btn btn-info w-100 action" onclick="add('1')">P</button>
+  </div>
+
+  <div class="col-4">
+    <button class="btn btn-danger w-100 action" onclick="add('2')">B</button>
+  </div>
+
+  <div class="col-4">
+    <button class="btn btn-success w-100 action" onclick="add('0')">T</button>
+  </div>
+
+  <!-- แถวกลาง -->
+  <div class="col-6">
+    <button class="btn btn-secondary w-100 action" onclick="undo()">UNDO</button>
+  </div>
+
+  <div class="col-6">
+    <button class="btn btn-warning w-100 action" onclick="ai()">
+      AI สุ่มความแม่นยำสูงสุด
+    </button>
+  </div>
+
+  <!-- Progress -->
+  <div class="col-12 mt-2">
+    <div class="progress" style="height:18px;">
+      <div id="aiBar"
+           class="progress-bar progress-bar-striped progress-bar-animated"
+           style="width:0%">0%</div>
+    </div>
+  </div>
+
+  <!-- RESET -->
+  <div class="col-12">
+    <button class="btn btn-dark w-100 action" onclick="reset()">RESET</button>
+  </div>
+
+</div>
+
+<!-- 🔥 วางตรงนี้ (ล่างสุดของกล่อง) -->
+<div class="top-result-box">
+  <div class="top-header">
+    🎯 RESULT TRACKING
+    <span id="topAcc" class="blink-acc">0%</span>
+  </div>
+
+
+  <div id="aiHelper" class="ai-helper">รอข้อมูล...</div>
+
+
+  <div id="topBet" class="top-bet">-</div>
+  <div id="topGrid" class="top-grid"></div>
+</div>
+
+
+<script>
+const EXPIRY_DATE=new Date('2026-04-16T23:59:59'); // 16 เมษายน พ.ศ. 2569
+const R=6,C=13;
+
+let h=[],g=[];
+let topResults = [];   // 👈 ใส่ตรงนี้ (สำคัญมาก)
+
+let lossCount = 0;
+let antiMode = true;
+
+let lastMode = null;
+
+// ===== Dynamic Risk Dampener =====
+let loseStreak = 0;
+let riskLevel  = 1;   // 1 = เต็มแรง
+
+
+function isExpired(){return new Date()>EXPIRY_DATE}
+function go(){
+if(isExpired()){m.innerText='PROGRAM EXPIRED';return;}
+if(u.value==='1234'&&p.value==='1234'){
+login.classList.add('d-none');
+app.classList.remove('d-none');
+}else m.innerText='ACCESS DENIED';
+}
+
+function lockIfExpired(){
+if(isExpired()){
+expiredMsg.classList.remove('d-none');
+document.querySelectorAll('.action').forEach(b=>b.disabled=true);
+}
+}
+
+function add(v){
+
+  if(isExpired()) return;
+  if(h.length >= R*C) return;
+
+  h.push(v);
+
+  let lastIndex = h.length - 1;
+
+  // ===== ✅ เก็บ TOP RESULT =====
+  if(g[lastIndex] !== undefined && v !== '0'){
+
+     let isWin = (v === g[lastIndex]);
+
+     topResults.push({ win: isWin });
+
+     if(topResults.length > 50){
+        topResults.shift();
+     }
+  }
+
+  // ===== อัปเดต lose streak =====
+  if(g[lastIndex] !== undefined && v !== '0'){
+     if(v === g[lastIndex]){
+        loseStreak = 0;
+        riskLevel = Math.min(riskLevel + 0.2, 1);
+     }else{
+        loseStreak++;
+        if(loseStreak >= 2) riskLevel = 0.6;
+        if(loseStreak >= 4) riskLevel = 0.4;
+     }
+  }
+
+  // ===== สร้าง prediction ช่องถัดไป =====
+  let nextIndex = h.length;
+
+  if(g[nextIndex] === undefined){
+     let reverseSignal = getReverseSignal();
+
+     if(!reverseSignal){
+        reverseSignal = Math.random() > .5 ? '1' : '2';
+     }
+
+     g[nextIndex] = reverseSignal;
+  }
+
+  draw();
+
+  setTimeout(() => ai(), 0);
+}
+
+
+
+
+function reset(){
+  if(!isExpired()){
+    h = [];
+    g = [];
+    topResults = [];   // ✅ เพิ่มบรรทัดนี้
+
+    const bar = document.getElementById("aiBar");
+    if(bar){
+      bar.style.width = "0%";
+      bar.innerText = "0%";
+    }
+
+    draw();
+  }
+}
+
+function undo(){
+  if(isExpired()) return;
+  if(h.length === 0) return;
+
+  let lastIndex = h.length - 1;
+
+  // ✅ ถ้ามี result ต้อง pop ออก
+  if(g[lastIndex] !== undefined && h[lastIndex] !== '0'){
+    topResults.pop();   // 👈 เพิ่มตรงนี้
+  }
+
+  h.splice(lastIndex, 1);
+  g.splice(lastIndex, 1);
+
+  draw();
+
+  setTimeout(() => ai(), 0);
+}
+
+function getLossStreak(){
+   let streak = 0;
+
+   for(let i = h.length - 1; i >= 0; i--){
+      if(h[i] === '0') continue;
+      if(g[i] === undefined) break;
+
+      if(h[i] !== g[i]) streak++;
+      else break;
+   }
+
+   return streak;
+}
+
+function getReverseSignal(){
+
+   let recent = h.slice().reverse().find(x => x !== '0');
+
+   if(!recent) return null;
+
+   return recent === '1' ? '2' : '1';
+}
+
+
+async function ai(){
+
+  if(isExpired()) return;
+
+  let targetIndex = h.length;
+
+  const TOTAL = 97000;
+  const CHUNK = 300;
+
+
+  const bar = document.getElementById("aiBar");
+
+  // 🔴 แสดงตัวสวนทันที
+  let reverseSignal = getReverseSignal();
+  if(!reverseSignal){
+     reverseSignal = Math.random() > .5 ? '1' : '2';
+  }
+
+  if(g[targetIndex] === undefined){
+     g[targetIndex] = reverseSignal;
+     draw();
+  }
+
+// 🔵 Monte Carlo
+let scoreP = 0;
+let scoreB = 0;
+let matches = 0;
+
+// ===== Dynamic Prefix (Ultra Stable) =====
+let dynamicPrefix = 5;
+
+if(riskLevel <= 0.6) dynamicPrefix = 4;
+if(riskLevel <= 0.4) dynamicPrefix = 3;
+
+let start = Math.max(0, h.length - dynamicPrefix);
+let prefix = h.slice(start).filter(x => x !== '0');
+
+// ===== Monte Carlo Loop =====
+for(let t=0; t<TOTAL; t+=CHUNK){
+
+  for(let k=0; k<CHUNK; k++){
+
+    let ok = true;
+
+    for(let i=0;i<prefix.length;i++){
+      let r = Math.random() > .5 ? '1':'2';
+      if(r !== prefix[i]){
+        ok = false;
+        break;
+      }
+    }
+
+    if(ok){
+      matches++;
+      let next = Math.random() > .5 ? '1':'2';
+      if(next === '1') scoreP++;
+      else scoreB++;
+    }
+  }
+
+  if(bar){
+    let percent = Math.floor(t/TOTAL*100);
+    bar.style.width = percent+"%";
+    bar.innerText = percent+"%";
+    await new Promise(r=>setTimeout(r,0));
+  }
+}
+
+if(bar){
+  bar.style.width="100%";
+  bar.innerText="100%";
+}
+
+ 
+ // ===============================
+// 🔵 AGGRESSIVE SMART MODE
+// ===============================
+
+let final;
+
+// คำนวณ confidence จริง
+let confidence = matches 
+   ? Math.max(scoreP, scoreB) / matches 
+   : 0;
+   
+// ===== Dynamic Confidence Cap =====
+let cap = 0.65;
+
+if(riskLevel <= 0.6) cap = 0.60;
+if(riskLevel <= 0.4) cap = 0.57;
+
+confidence = Math.min(confidence, cap);
+
+// ฝั่งหลักจาก Monte Carlo
+let mainSignal = scoreP > scoreB ? '1' : '2';
+
+// ----------- โซนตัดสินใจ -----------
+
+if(matches === 0){
+   final = reverseSignal; // ไม่มี match = สวน
+}
+else if(confidence >= 0.54){
+   // Edge เริ่มชัด → ตาม
+   final = mainSignal;
+}
+else if(confidence >= 0.48){
+   // โซนหลอก 48–54 → สวนทันที
+   final = mainSignal === '1' ? '2' : '1';
+}
+else{
+   // ต่ำกว่า 48 = bias ผิดฝั่งแรง → สวนแรง
+   final = mainSignal === '1' ? '2' : '1';
+}
+
+
+// ===== Dynamic Risk Dampener (ปรับเนียนกว่าเดิม) =====
+if(riskLevel < 1){
+
+   // เสียระดับกลาง → ถ้า edge ไม่ชัด หันสวน
+   if(riskLevel <= 0.6 && confidence < 0.54){
+      final = reverseSignal;
+   }
+
+   // เสียหนัก → ต้องชัดจริงค่อยตาม
+   if(riskLevel <= 0.4 && confidence >= 0.57){
+      final = mainSignal;
+   }
+}
+
+// ----------- Loss Guard -----------
+
+let streak = getLossStreak();
+
+if(streak >= 3 && riskLevel > 0.5 && confidence < 0.60){
+   final = final === '1' ? '2' : '1';
+}
+
+// บันทึกผล
+g[targetIndex] = final;
+lastMode = final === mainSignal ? 'main' : 'reverse';
+  draw();
+
+  }
+
+  function getSmart50Decision(){
+
+  let recent = h.slice().reverse().filter(x => x !== '0').slice(0, 10);
+
+  let scoreP = 0;
+  let scoreB = 0;
+
+  let aiSignal = g[h.length];
+
+  // =========================
+  // 🔹 1. TREND DEPTH (ไหลลึก)
+  // =========================
+  let streak = 1;
+
+  for(let i=1;i<recent.length;i++){
+    if(recent[i] === recent[0]) streak++;
+    else break;
+  }
+
+  if(streak >= 2){
+    let power = Math.min(streak,5);
+    if(recent[0] === '1') scoreP += power * 2.5;
+    else scoreB += power * 2.5;
+  }
+
+  // =========================
+  // 🔹 2. MOMENTUM FLOW (น้ำหนักล่าสุดแรงสุด)
+  // =========================
+  recent.forEach((v,i)=>{
+    let w = (recent.length - i) * 0.6;
+    if(v === '1') scoreP += w;
+    else scoreB += w;
+  });
+
+  // =========================
+  // 🔹 3. CHOP DETECTOR (สลับ)
+  // =========================
+  let chop = 0;
+
+  for(let i=0;i<recent.length-1;i++){
+    if(recent[i] !== recent[i+1]) chop++;
+  }
+
+  if(chop >= 5){
+    // สลับหนัก → สวน
+    if(recent[0] === '1') scoreB += 4;
+    else scoreP += 4;
+  }
+
+  // =========================
+  // 🔹 4. PATTERN MEMORY (จำรูปแบบ)
+  // =========================
+  let last4 = recent.slice(0,4).join('');
+
+  const patternMap = {
+    "1111": ['1',3],
+    "2222": ['2',3],
+    "1212": ['2',2],
+    "2121": ['1',2],
+    "1122": ['2',2],
+    "2211": ['1',2]
+  };
+
+  if(patternMap[last4]){
+    let [side, w] = patternMap[last4];
+    if(side === '1') scoreP += w;
+    else scoreB += w;
+  }
+
+  // =========================
+  // 🔹 5. AI SIGNAL WEIGHT (Monte Carlo)
+  // =========================
+  if(aiSignal === '1') scoreP += 3;
+  if(aiSignal === '2') scoreB += 3;
+
+  // =========================
+  // 🔹 6. ANTI-BIAS (กันหลอก)
+  // =========================
+  let total = scoreP + scoreB;
+
+  if(total > 0){
+    let ratioP = scoreP / total;
+
+    // ถ้า bias ข้างเดียวเกิน → หักกลับ
+    if(ratioP > 0.7) scoreB += 3;
+    if(ratioP < 0.3) scoreP += 3;
+  }
+
+  // =========================
+  // 🔹 7. RISK CONTROL
+  // =========================
+  if(riskLevel <= 0.6){
+    // เสีย → เล่นปลอดภัย (สวน bias)
+    if(scoreP > scoreB) scoreB += 2.5;
+    else scoreP += 2.5;
+  }
+
+  if(riskLevel <= 0.4){
+    // เสียหนัก → ต้อง edge ชัดเท่านั้น
+    if(Math.abs(scoreP - scoreB) < 4){
+      return {
+        text: "🟡 50% AI PRO → ❌ SKIP (ความเสี่ยงสูง)",
+        cls: "ai-neutral"
+      };
+    }
+  }
+
+  // =========================
+  // 🔥 FINAL DECISION
+  // =========================
+  let diff = Math.abs(scoreP - scoreB);
+
+  let pick = scoreP > scoreB ? 'P' : 'B';
+
+  // =========================
+  // 🔥 CONFIDENCE จริง
+  // =========================
+  let confidence = total 
+    ? Math.round((diff / total) * 100) 
+    : 0;
+
+  let level = "";
+
+  if(confidence >= 35) level = "🔥 ULTRA";
+  else if(confidence >= 25) level = "🔥 STRONG";
+  else if(confidence >= 15) level = "⚡ MEDIUM";
+  else level = "⚖️ WEAK";
+
+  // =========================
+  return {
+    text: `🟡 AI PRO MAX → ${level} (${confidence}%) → แทง ${pick}`,
+    cls: scoreP > scoreB ? "ai-follow" : "ai-reverse"
+  };
+}
+
+
+
+function draw(){
+
+  tb.innerHTML='';
+
+  let win=0,total=0,p=0,b=0,ti=0;
+  let pending=h.length, blinkUsed=false;
+
+  adv.className='advice';
+
+  // ===== NEXT ADVICE =====
+  if(g[pending]){
+     adv.innerText = g[pending]=='1'?'P':'B';
+     adv.classList.add(g[pending]=='1'?'p':'b');
+  }
+  else if(h.length === 0){
+     adv.innerText='WAIT';
+  }
+
+  // ===== LOOP GRID =====
+  for(let r=0;r<R;r++){
+    let tr = document.createElement('tr');
+
+    for(let c=0;c<C;c++){
+
+      let i = c*R + r;
+      let td = document.createElement('td');
+
+      // =========================
+      // 🔵 HISTORY (ผลจริง)
+      // =========================
+      if(h[i]){
+
+        let s = document.createElement('span');
+
+        if(h[i]=='1'){
+            td.className='p';
+            s.innerText='P';
+            p++;
+        }
+        else if(h[i]=='2'){
+            td.className='b';
+            s.innerText='B';
+            b++;
+        }
+        else{
+            td.className='t';
+            s.innerText='T';
+            ti++;
+        }
+
+        td.appendChild(s);
+
+        // =========================
+        // ✅ CHECK WIN / LOSE
+        // =========================
+        if(h[i] !== '0' && g[i] !== undefined){
+
+            total++;
+
+            let ok = (h[i] === g[i]);
+
+            if(ok) win++;
+
+            td.innerHTML += `
+              <div class="mark ${ok ? 'ok' : 'no'}">
+                ${ok ? '✓' : '✕'}
+              </div>
+            `;
+        }
+      }
+
+      // =========================
+      // 🟡 GHOST PREDICTION
+      // =========================
+      else if(g[i]){
+
+        td.className = g[i]=='1' ? 'gp' : 'gb';
+        td.innerHTML = `<span>${g[i]=='1'?'P':'B'}</span>`;
+
+        // 🔥 ช่องกำลังแทง
+        if(i===pending && !blinkUsed){
+          td.classList.add('pending');
+          blinkUsed = true;
+        }
+      }
+
+      tr.appendChild(td);
+    }
+
+    tb.appendChild(tr);
+  }
+
+  // =========================
+  // 📊 STATS
+  // =========================
+  acc.innerText = total ? Math.round(win/total*100)+'%' : '0%';
+  cp.innerText = p;
+  cb.innerText = b;
+  ct.innerText = ti;
+  ca.innerText = h.length;
+
+  // =========================
+  // 🎯 TOP RESULT TRACKING
+  // =========================
+  let box = document.getElementById("topGrid");
+  let accEl = document.getElementById("topAcc");
+  let betEl = document.getElementById("topBet");
+
+  if(box){
+
+    box.innerHTML = "";
+
+    let next = g[h.length];
+
+    // 🔥 NEXT BET (ตัวใหญ่)
+    if(next){
+      betEl.innerText = next === '1' ? 'P' : 'B';
+      betEl.className = "top-bet " + (next === '1' ? 'p' : 'b');
+    }else{
+      betEl.innerText = "-";
+      betEl.className = "top-bet";
+    }
+
+    let winTop = 0;
+
+    // 🔁 วาด grid ผลย้อนหลัง
+    (topResults || []).forEach(item => {
+
+      let div = document.createElement("div");
+
+      if(item.win){
+        div.className = "top-cell top-win";
+        div.innerText = "✓";
+        winTop++;
+      }else{
+        div.className = "top-cell top-lose";
+        div.innerText = "✕";
+      }
+
+      box.appendChild(div);
+    });
+
+let totalTop = topResults.length;
+let percent = totalTop ? Math.round(winTop/totalTop*100) : 0;
+let helper = document.getElementById("aiHelper");
+
+helper.classList.remove("ai-reverse","ai-neutral","ai-follow");
+
+
+
+// =======================
+// 🔥 1. กัน next ไม่มีค่า (ต้องมาก่อนสุด)
+// =======================
+if(!next){
+  helper.innerText = "⏳ รอสัญญาณ AI...";
+  helper.classList.add("ai-neutral");
+}
+
+// =======================
+// 🔥 2. กันหลอกช่วงต้นเกม
+// =======================
+else if(totalTop < 5){
+  helper.innerText = "⏳ กำลังเก็บข้อมูล... (AI ยังไม่มั่นใจ)";
+  helper.classList.add("ai-neutral");
+}
+
+// =======================
+// 🔴 3. ต่ำกว่า 50 → สวน + บอกตัวแทง
+// =======================
+else if(percent < 50){
+
+  let pick = next === '1' ? 'B' : 'P';
+
+  helper.innerText = `🔴 สวน → ควรแทง ${pick}`;
+  helper.classList.add("ai-reverse");
+}
+
+// =======================
+// 🟡 4. 50% → AI วิเคราะห์ลึก
+// =======================
+else if(percent === 50){
+
+  let smart = getSmart50Decision();
+
+  helper.innerText = smart.text;
+  helper.classList.add(smart.cls);
+}
+
+// =======================
+// 🟢 5. มากกว่า 50 → ตาม + บอกตัวแทง
+// =======================
+else{
+
+  let pick = next === '1' ? 'P' : 'B';
+
+  helper.innerText = `🟢 ตาม → ควรแทง ${pick}`;
+  helper.classList.add("ai-follow");
+}
+
+// =======================
+// 📊 ACC
+// =======================
+accEl.innerText = percent + "%";
+
+// 🔥 ล้าง class สีเก่า
+accEl.classList.remove("acc-low","acc-mid","acc-high");
+
+// 🔥 ใส่สีตาม % จริง
+if(percent < 50){
+  accEl.classList.add("acc-low");   // 🔴
+}
+else if(percent < 60){
+  accEl.classList.add("acc-mid");   // 🟡
+}
+else{
+  accEl.classList.add("acc-high");  // 🟢
+}
+
+// 🔥 เปิด blink เมื่อมีค่า
+if(percent > 0){
+  accEl.classList.add("blink-acc");
+}else{
+  accEl.classList.remove("blink-acc");
+}
+
+
+  }
+}
+
+// ===== INIT =====
+draw();
+lockIfExpired();
+
+</script>
+
+</body>
+</html>
